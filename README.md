@@ -22,7 +22,13 @@ Favourites, settings and journey history stay in each phone's browser storage an
 
 More detail: [architecture](docs/architecture.md), [data model](docs/data-model.md), [deploying](docs/deploying.md).
 
-## Run it locally
+## Put it live
+
+The app runs on Cloudflare at a public address like `https://journey-buddy.<your-subdomain>.workers.dev`.
+Follow [docs/deploying.md](docs/deploying.md) once to set it up. After that, every push to `main`
+deploys automatically through GitHub Actions.
+
+## Run it locally for testing
 
 You need Node.js 20 or later.
 
