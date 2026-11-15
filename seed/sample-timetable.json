@@ -1,0 +1,634 @@
+{
+  "meta": {
+    "sample": true,
+    "note": "EXAMPLE DATA ONLY. Times, fares, route numbers and stop locations are placeholders for testing the app. Replace with Translink data and staff-checked stop details before anyone relies on it.",
+    "updated": "2026-11-09",
+    "helpline": {
+      "name": "Translink",
+      "phone": "028 9066 6630"
+    }
+  },
+  "stops": {
+    "enk-bus": {
+      "name": "Enniskillen Buscentre",
+      "area": "Enniskillen",
+      "lat": 54.3446,
+      "lon": -7.6383,
+      "photo": null,
+      "landmarks": [
+        "Big glass bus station on Wellington Road",
+        "Erneside Shopping Centre is across the road"
+      ],
+      "tips": [
+        "Screens inside show which stand your bus leaves from",
+        "Toilets and a ticket office are inside"
+      ],
+      "safety": [
+        "Footpaths and street lights all the way into town"
+      ]
+    },
+    "enk-townhall": {
+      "name": "Townhall Street",
+      "area": "Enniskillen",
+      "lat": 54.3449,
+      "lon": -7.6409,
+      "photo": null,
+      "landmarks": [
+        "Outside the shops on the main street",
+        "Town Hall clock tower is close by"
+      ],
+      "tips": [
+        "Busy street. Stand at the bus stop sign so the driver sees you"
+      ],
+      "safety": [
+        "Use the pedestrian crossing to cross the main street"
+      ]
+    },
+    "enk-workhouse": {
+      "name": "The Workhouse",
+      "area": "Enniskillen",
+      "lat": 54.3427,
+      "lon": -7.6531,
+      "photo": null,
+      "landmarks": [
+        "Old stone building set back from the road",
+        "NOW Group sessions are held here"
+      ],
+      "tips": [
+        "Ask staff at reception if you are unsure where the stop is"
+      ],
+      "safety": [
+        "Busy road. Cross at the crossing, not between parked cars"
+      ]
+    },
+    "enk-college": {
+      "name": "South West College",
+      "area": "Enniskillen",
+      "lat": 54.3398,
+      "lon": -7.6262,
+      "photo": null,
+      "landmarks": [
+        "Large modern college building",
+        "Stop is near the main entrance"
+      ],
+      "tips": [
+        "Very busy at the start and end of the college day"
+      ],
+      "safety": [
+        "Footpath all the way to the entrance"
+      ]
+    },
+    "enk-hospital": {
+      "name": "South West Acute Hospital",
+      "area": "Enniskillen",
+      "lat": 54.3686,
+      "lon": -7.6136,
+      "photo": null,
+      "landmarks": [
+        "Big hospital building with a large car park",
+        "Stop is near the main entrance"
+      ],
+      "tips": [
+        "Hospital staff on the front desk can help if you are lost"
+      ],
+      "safety": [
+        "Watch for cars in the car park"
+      ]
+    },
+    "ballinamallard": {
+      "name": "Ballinamallard",
+      "area": "On the way to Omagh",
+      "lat": 54.4005,
+      "lon": -7.5906,
+      "photo": null,
+      "landmarks": [
+        "Village main street"
+      ],
+      "tips": [],
+      "safety": [
+        "Some roads near the village have no footpath"
+      ]
+    },
+    "irvinestown": {
+      "name": "Irvinestown",
+      "area": "On the way to Omagh",
+      "lat": 54.4712,
+      "lon": -7.6327,
+      "photo": null,
+      "landmarks": [
+        "Main Street, near the shops"
+      ],
+      "tips": [],
+      "safety": []
+    },
+    "dromore": {
+      "name": "Dromore",
+      "area": "On the way to Omagh",
+      "lat": 54.5151,
+      "lon": -7.4605,
+      "photo": null,
+      "landmarks": [
+        "Village main street"
+      ],
+      "tips": [],
+      "safety": []
+    },
+    "omagh-bus": {
+      "name": "Omagh Buscentre",
+      "area": "Omagh",
+      "lat": 54.599,
+      "lon": -7.3043,
+      "photo": null,
+      "landmarks": [
+        "Bus station on Mountjoy Road",
+        "Close to the town centre shops"
+      ],
+      "tips": [
+        "Your bus home leaves from here too. Check the screens for the stand"
+      ],
+      "safety": [
+        "Footpaths and street lights into the town centre"
+      ]
+    },
+    "fivemiletown": {
+      "name": "Fivemiletown",
+      "area": "On the way to Belfast",
+      "lat": 54.3772,
+      "lon": -7.3108,
+      "photo": null,
+      "landmarks": [
+        "Main Street"
+      ],
+      "tips": [],
+      "safety": []
+    },
+    "ballygawley": {
+      "name": "Ballygawley",
+      "area": "On the way to Belfast",
+      "lat": 54.4601,
+      "lon": -7.0302,
+      "photo": null,
+      "landmarks": [
+        "Roundabout stop beside the main road"
+      ],
+      "tips": [],
+      "safety": []
+    },
+    "dungannon": {
+      "name": "Dungannon",
+      "area": "On the way to Belfast",
+      "lat": 54.5052,
+      "lon": -6.769,
+      "photo": null,
+      "landmarks": [
+        "Dungannon Bus Station"
+      ],
+      "tips": [],
+      "safety": []
+    },
+    "belfast-gc": {
+      "name": "Belfast Grand Central Station",
+      "area": "Belfast",
+      "lat": 54.5945,
+      "lon": -5.94,
+      "photo": null,
+      "landmarks": [
+        "Very large new bus and train station",
+        "Big screens show every departure"
+      ],
+      "tips": [
+        "It is a big, busy station. Find a quiet spot and check the screens for your stand",
+        "Staff in Translink uniforms can help you"
+      ],
+      "safety": [
+        "Busy roads outside. Use the crossings"
+      ]
+    }
+  },
+  "routes": [
+    {
+      "id": "town",
+      "number": "Town",
+      "name": "Enniskillen Town Service",
+      "headsign": {
+        "out": "Hospital",
+        "back": "Buscentre"
+      },
+      "kind": "Ulsterbus town service",
+      "fare": {
+        "single": 1.9,
+        "return": 3.2
+      },
+      "busy": [
+        {
+          "days": [
+            "MF"
+          ],
+          "from": "08:00",
+          "to": "09:15",
+          "note": "Busy with college students"
+        },
+        {
+          "days": [
+            "MF"
+          ],
+          "from": "15:00",
+          "to": "16:30",
+          "note": "Busy with school and college students"
+        }
+      ],
+      "patterns": {
+        "out": [
+          {
+            "stop": "enk-bus",
+            "offset": 0
+          },
+          {
+            "stop": "enk-townhall",
+            "offset": 3
+          },
+          {
+            "stop": "enk-workhouse",
+            "offset": 8
+          },
+          {
+            "stop": "enk-college",
+            "offset": 15
+          },
+          {
+            "stop": "enk-hospital",
+            "offset": 24
+          }
+        ],
+        "back": [
+          {
+            "stop": "enk-hospital",
+            "offset": 0
+          },
+          {
+            "stop": "enk-college",
+            "offset": 9
+          },
+          {
+            "stop": "enk-workhouse",
+            "offset": 16
+          },
+          {
+            "stop": "enk-townhall",
+            "offset": 21
+          },
+          {
+            "stop": "enk-bus",
+            "offset": 24
+          }
+        ]
+      },
+      "trips": [
+        {
+          "dir": "out",
+          "days": [
+            "MF"
+          ],
+          "times": [
+            "08:15",
+            "09:15",
+            "10:15",
+            "11:15",
+            "12:15",
+            "13:15",
+            "14:15",
+            "15:15",
+            "16:15",
+            "17:15"
+          ]
+        },
+        {
+          "dir": "out",
+          "days": [
+            "SA"
+          ],
+          "times": [
+            "09:45",
+            "11:45",
+            "13:45",
+            "15:45"
+          ]
+        },
+        {
+          "dir": "back",
+          "days": [
+            "MF"
+          ],
+          "times": [
+            "08:45",
+            "09:45",
+            "10:45",
+            "11:45",
+            "12:45",
+            "13:45",
+            "14:45",
+            "15:45",
+            "16:45",
+            "17:45"
+          ]
+        },
+        {
+          "dir": "back",
+          "days": [
+            "SA"
+          ],
+          "times": [
+            "10:15",
+            "12:15",
+            "14:15",
+            "16:15"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "omagh",
+      "number": "94",
+      "name": "Enniskillen to Omagh",
+      "headsign": {
+        "out": "Omagh",
+        "back": "Enniskillen"
+      },
+      "kind": "Ulsterbus",
+      "fare": {
+        "single": 6.5,
+        "return": 11
+      },
+      "busy": [
+        {
+          "days": [
+            "MF"
+          ],
+          "from": "07:15",
+          "to": "08:30",
+          "note": "Busy with school pupils"
+        },
+        {
+          "days": [
+            "MF"
+          ],
+          "from": "15:00",
+          "to": "16:15",
+          "note": "Busy with school pupils"
+        }
+      ],
+      "patterns": {
+        "out": [
+          {
+            "stop": "enk-bus",
+            "offset": 0
+          },
+          {
+            "stop": "ballinamallard",
+            "offset": 15
+          },
+          {
+            "stop": "irvinestown",
+            "offset": 25
+          },
+          {
+            "stop": "dromore",
+            "offset": 40
+          },
+          {
+            "stop": "omagh-bus",
+            "offset": 60
+          }
+        ],
+        "back": [
+          {
+            "stop": "omagh-bus",
+            "offset": 0
+          },
+          {
+            "stop": "dromore",
+            "offset": 20
+          },
+          {
+            "stop": "irvinestown",
+            "offset": 35
+          },
+          {
+            "stop": "ballinamallard",
+            "offset": 45
+          },
+          {
+            "stop": "enk-bus",
+            "offset": 60
+          }
+        ]
+      },
+      "trips": [
+        {
+          "dir": "out",
+          "days": [
+            "MF"
+          ],
+          "times": [
+            "07:30",
+            "09:00",
+            "11:00",
+            "13:00",
+            "15:00",
+            "17:30"
+          ]
+        },
+        {
+          "dir": "out",
+          "days": [
+            "SA"
+          ],
+          "times": [
+            "09:00",
+            "13:00",
+            "17:00"
+          ]
+        },
+        {
+          "dir": "back",
+          "days": [
+            "MF"
+          ],
+          "times": [
+            "08:45",
+            "10:30",
+            "12:30",
+            "14:30",
+            "16:30",
+            "18:45"
+          ]
+        },
+        {
+          "dir": "back",
+          "days": [
+            "SA"
+          ],
+          "times": [
+            "10:30",
+            "14:30",
+            "18:30"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "belfast",
+      "number": "261",
+      "name": "Goldline Enniskillen to Belfast",
+      "headsign": {
+        "out": "Belfast",
+        "back": "Enniskillen"
+      },
+      "kind": "Goldline express coach",
+      "fare": {
+        "single": 13,
+        "return": 20
+      },
+      "busy": [
+        {
+          "days": [
+            "MF"
+          ],
+          "from": "06:30",
+          "to": "07:30",
+          "note": "Busy with people going to work"
+        },
+        {
+          "days": [
+            "MF"
+          ],
+          "from": "17:00",
+          "to": "18:00",
+          "note": "Busy with people going home from work"
+        },
+        {
+          "days": [
+            "SU"
+          ],
+          "from": "15:00",
+          "to": "19:00",
+          "note": "Busy with students going back to university"
+        }
+      ],
+      "patterns": {
+        "out": [
+          {
+            "stop": "enk-bus",
+            "offset": 0
+          },
+          {
+            "stop": "fivemiletown",
+            "offset": 25
+          },
+          {
+            "stop": "ballygawley",
+            "offset": 45
+          },
+          {
+            "stop": "dungannon",
+            "offset": 65
+          },
+          {
+            "stop": "belfast-gc",
+            "offset": 135
+          }
+        ],
+        "back": [
+          {
+            "stop": "belfast-gc",
+            "offset": 0
+          },
+          {
+            "stop": "dungannon",
+            "offset": 70
+          },
+          {
+            "stop": "ballygawley",
+            "offset": 90
+          },
+          {
+            "stop": "fivemiletown",
+            "offset": 110
+          },
+          {
+            "stop": "enk-bus",
+            "offset": 135
+          }
+        ]
+      },
+      "trips": [
+        {
+          "dir": "out",
+          "days": [
+            "MF"
+          ],
+          "times": [
+            "06:50",
+            "08:45",
+            "11:45",
+            "14:45",
+            "17:15"
+          ]
+        },
+        {
+          "dir": "out",
+          "days": [
+            "SA"
+          ],
+          "times": [
+            "08:45",
+            "13:45",
+            "17:15"
+          ]
+        },
+        {
+          "dir": "out",
+          "days": [
+            "SU"
+          ],
+          "times": [
+            "15:45"
+          ]
+        },
+        {
+          "dir": "back",
+          "days": [
+            "MF"
+          ],
+          "times": [
+            "09:00",
+            "12:00",
+            "15:00",
+            "17:30",
+            "19:30"
+          ]
+        },
+        {
+          "dir": "back",
+          "days": [
+            "SA"
+          ],
+          "times": [
+            "10:00",
+            "15:00",
+            "18:30"
+          ]
+        },
+        {
+          "dir": "back",
+          "days": [
+            "SU"
+          ],
+          "times": [
+            "18:00"
+          ]
+        }
+      ]
+    }
+  ]
+}

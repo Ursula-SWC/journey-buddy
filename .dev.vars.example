@@ -1,0 +1,7 @@
+# Copy to .dev.vars for local development. Never commit .dev.vars.
+USER_PASSCODE=lough-erne
+SESSION_SECRET=change-me-to-a-long-random-string
+
+# Local only: lets `wrangler dev` treat you as staff without Cloudflare Access.
+# Never set this in production.
+DEV_STAFF_EMAIL=you@example.org

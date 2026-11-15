@@ -1,0 +1,22 @@
+{
+  "name": "journey-buddy",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Journey Buddy: a calm bus journey companion for a charity user group (Fermanagh and Tyrone). Cloudflare Worker + D1.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "seed:build": "node scripts/build-seed.mjs seed/sample-timetable.json seed/sample-data.sql",
+    "db:migrate:local": "wrangler d1 migrations apply journey-buddy --local",
+    "db:migrate:remote": "wrangler d1 migrations apply journey-buddy --remote",
+    "db:seed:local": "wrangler d1 execute journey-buddy --local --file seed/sample-data.sql",
+    "db:seed:remote": "wrangler d1 execute journey-buddy --remote --file seed/sample-data.sql"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20261101.0",
+    "typescript": "^6.0.0",
+    "wrangler": "^4.0.0"
+  }
+}

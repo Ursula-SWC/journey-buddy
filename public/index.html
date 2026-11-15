@@ -1,0 +1,1176 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e6670">
+<title>Journey Buddy</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lexend:wght@500;600&display=swap">
+<style>
+/* Journey Buddy — calm, mobile-first travel companion.
+   Layout: one centred phone-width column; sticky top bar, fixed bottom tab bar, big tap targets.
+   Palette: Lough Erne water + reed neutrals. One accent (lake), one signal (amber) used only for "get ready". */
+:root {
+  --bg: #f3f6f5;
+  --surface: #ffffff;
+  --surface-2: #e8eeec;
+  --ink: #122826;
+  --ink-soft: #4a5f5c;
+  --line: #d3dcda;
+  --lake: #0e6670;
+  --lake-ink: #ffffff;
+  --lake-soft: #d7ebec;
+  --signal: #f2b33d;
+  --signal-ink: #2b1d00;
+  --good: #2f7a4a;
+  --good-soft: #dcefe2;
+  --warn-soft: #fbefd5;
+  --danger: #b3261e;
+  --shadow: 0 1px 2px rgb(18 40 38 / 6%), 0 4px 14px rgb(18 40 38 / 6%);
+
+  --font-display: "Lexend", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --radius: 18px;
+  --radius-sm: 12px;
+  --tap: 3.5rem;
+  --bar-h: 4.5rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1716; --surface: #15211f; --surface-2: #1d2b29; --ink: #e6efed; --ink-soft: #a5b6b3;
+    --line: #2b3b39; --lake: #5cc0c9; --lake-ink: #062023; --lake-soft: #173a3d; --signal: #f2b33d;
+    --signal-ink: #2b1d00; --good: #6fcf8f; --good-soft: #17301f; --warn-soft: #3a2e14; --danger: #ff8a80;
+    --shadow: 0 1px 2px rgb(0 0 0 / 30%); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1716; --surface: #15211f; --surface-2: #1d2b29; --ink: #e6efed; --ink-soft: #a5b6b3;
+  --line: #2b3b39; --lake: #5cc0c9; --lake-ink: #062023; --lake-soft: #173a3d; --signal: #f2b33d;
+  --signal-ink: #2b1d00; --good: #6fcf8f; --good-soft: #17301f; --warn-soft: #3a2e14; --danger: #ff8a80;
+  --shadow: 0 1px 2px rgb(0 0 0 / 30%); color-scheme: dark;
+}
+/* Calm colours: strip the accent back to ink so nothing competes for attention. */
+:root[data-calm="on"] { --lake: var(--ink); --lake-ink: var(--bg); --lake-soft: var(--surface-2); --good: var(--ink); --good-soft: var(--surface-2); }
+
+/* Text size setting scales everything because the layout is in rem. */
+:root[data-size="large"] { font-size: 112.5%; }
+:root[data-size="xlarge"] { font-size: 128%; }
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+img { max-width: 100%; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.2; text-wrap: balance; margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.25rem; }
+h3 { font-size: 1.0625rem; }
+p { margin: 0; }
+a { color: var(--lake); }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--signal); outline-offset: 2px; border-radius: 6px; }
+[tabindex="-1"]:focus { outline: none; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- App frame ---------- */
+.app { max-width: 36rem; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  display: flex; align-items: center; gap: 0.5rem;
+  min-height: 3.75rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0.5rem;
+  background: var(--bg);
+  border-bottom: 1px solid transparent;
+}
+.topbar.scrolled { border-bottom-color: var(--line); }
+.topbar h1 { font-size: 1.25rem; flex: 1; min-width: 0; }
+.brand { display: flex; align-items: center; gap: 0.6rem; flex: 1; min-width: 0; }
+.brand-mark { width: 2.25rem; height: 2.25rem; border-radius: 10px; background: var(--lake); color: var(--lake-ink); display: grid; place-items: center; flex: none; }
+.brand-mark svg { width: 1.35rem; height: 1.35rem; }
+.brand b { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; }
+.icon-btn {
+  width: 3rem; height: 3rem; flex: none; border-radius: 50%; border: 0; background: transparent;
+  display: grid; place-items: center; cursor: pointer; color: var(--ink);
+}
+.icon-btn:hover { background: var(--surface-2); }
+.icon-btn svg { width: 1.6rem; height: 1.6rem; }
+
+main {
+  flex: 1;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0.5rem calc(var(--bar-h) + 2rem + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column; gap: 1.25rem;
+}
+
+.tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 6;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+.tabbar nav { max-width: 36rem; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); }
+.tab {
+  min-height: var(--bar-h); border: 0; background: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem;
+  color: var(--ink-soft); font-size: 0.875rem; font-weight: 700;
+}
+.tab svg { width: 1.6rem; height: 1.6rem; }
+.tab[aria-current="page"] { color: var(--lake); }
+.tab[aria-current="page"] svg { stroke-width: 2.4; }
+.tab.help-tab { color: var(--danger); }
+
+/* ---------- Building blocks ---------- */
+.stack { display: flex; flex-direction: column; gap: 0.75rem; }
+.row { display: flex; align-items: center; gap: 0.75rem; }
+.row > .grow { flex: 1; min-width: 0; }
+.muted { color: var(--ink-soft); }
+.small { font-size: 0.9375rem; }
+.eyebrow { font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+.section-title { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
+
+.card { background: var(--surface); border-radius: var(--radius); padding: 1.125rem; box-shadow: var(--shadow); }
+.card.flat { box-shadow: none; border: 1px solid var(--line); }
+
+.btn {
+  min-height: var(--tap); padding: 0.75rem 1.25rem; border-radius: 999px; border: 2px solid transparent;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
+  font-weight: 700; font-size: 1.0625rem; cursor: pointer; text-decoration: none; text-align: center; white-space: nowrap;
+}
+.btn svg { width: 1.4rem; height: 1.4rem; flex: none; }
+.btn-primary { background: var(--lake); color: var(--lake-ink); }
+.btn-secondary { background: var(--surface); color: var(--ink); border-color: var(--line); }
+.btn-quiet { background: var(--surface-2); color: var(--ink); }
+.btn-danger { background: var(--danger); color: var(--bg); }
+.btn-block { width: 100%; }
+.btn:active { transform: translateY(1px); }
+
+/* Big home tiles */
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.tile {
+  border: 0; cursor: pointer; text-align: left; color: var(--ink);
+  background: var(--surface); box-shadow: var(--shadow); border-radius: var(--radius);
+  padding: 1rem; min-height: 8.5rem;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 0.75rem;
+}
+.tile .ico { width: 3rem; height: 3rem; border-radius: 14px; display: grid; place-items: center; background: var(--lake-soft); color: var(--lake); }
+.tile .ico svg { width: 1.7rem; height: 1.7rem; }
+.tile b { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; line-height: 1.2; }
+.tile span { color: var(--ink-soft); font-size: 0.9375rem; }
+.tile.primary { grid-column: 1 / -1; background: var(--lake); color: var(--lake-ink); min-height: 7rem; flex-direction: row; align-items: center; }
+.tile.primary .ico { background: rgb(255 255 255 / 16%); color: inherit; }
+.tile.primary span { color: inherit; opacity: 0.85; }
+
+/* Notice banners */
+.notice { display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.875rem 1rem; border-radius: var(--radius-sm); background: var(--warn-soft); font-size: 0.9375rem; }
+.notice svg { width: 1.4rem; height: 1.4rem; flex: none; margin-top: 0.1rem; }
+.notice.info { background: var(--lake-soft); }
+.notice.good { background: var(--good-soft); }
+
+/* Choice lists (no typing) */
+.choices { display: flex; flex-direction: column; gap: 0.5rem; }
+.choice {
+  width: 100%; min-height: var(--tap); border: 2px solid var(--line); background: var(--surface); border-radius: var(--radius-sm);
+  display: flex; align-items: center; gap: 0.875rem; padding: 0.75rem 1rem; cursor: pointer; text-align: left; color: var(--ink);
+}
+.choice:hover { border-color: var(--lake); }
+.choice .grow { flex: 1; min-width: 0; }
+.choice b { display: block; font-size: 1.0625rem; }
+.choice small { color: var(--ink-soft); font-size: 0.9rem; }
+.choice > svg { width: 1.5rem; height: 1.5rem; color: var(--ink-soft); flex: none; }
+.choice.selected { border-color: var(--lake); background: var(--lake-soft); }
+.pin { width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; flex: none; color: var(--lake); }
+.pin svg { width: 1.3rem; height: 1.3rem; }
+
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 0.25rem; padding: 0.25rem; background: var(--surface-2); border-radius: 999px; }
+.seg button { min-height: 3rem; border: 0; border-radius: 999px; background: none; font-weight: 700; cursor: pointer; color: var(--ink-soft); }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+
+/* Steps indicator for plan flow — a real sequence, so numbered */
+.steps { display: flex; gap: 0.375rem; }
+.steps i { flex: 1; height: 6px; border-radius: 3px; background: var(--line); }
+.steps i.on { background: var(--lake); }
+
+/* Bus number badge — mirrors the destination blind on the front of the bus */
+.bus-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0.65rem 0.3rem 0.35rem;
+  border-radius: 10px; background: var(--ink); color: var(--bg); font-weight: 700; white-space: nowrap;
+}
+.bus-badge .num { background: var(--signal); color: var(--signal-ink); border-radius: 7px; padding: 0.05rem 0.45rem; font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+.blind {
+  background: #111; color: #ffb52e; border-radius: var(--radius-sm); padding: 1rem 1.125rem;
+  font-family: var(--font-display); font-weight: 600; font-size: 1.6rem; letter-spacing: 0.02em;
+  display: flex; gap: 1rem; align-items: center; justify-content: space-between;
+}
+.blind .num { font-size: 2.2rem; }
+
+/* Journey result card */
+.journey { display: flex; flex-direction: column; gap: 0.75rem; border: 0; width: 100%; text-align: left; cursor: pointer; color: var(--ink); font: inherit; }
+.times { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.75rem; }
+.time { font-family: var(--font-display); font-weight: 600; font-size: 1.5rem; font-variant-numeric: tabular-nums; line-height: 1; }
+.time small { display: block; font-family: var(--font-body); font-weight: 400; font-size: 0.8125rem; color: var(--ink-soft); margin-top: 0.3rem; }
+.dash { height: 2px; background: repeating-linear-gradient(90deg, var(--line) 0 8px, transparent 8px 14px); position: relative; }
+.chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.65rem; border-radius: 999px; background: var(--surface-2); font-size: 0.875rem; font-weight: 700; }
+.chip svg { width: 1rem; height: 1rem; }
+.chip.quiet { background: var(--good-soft); color: var(--good); }
+.chip.busy { background: var(--warn-soft); }
+.chip.soon { background: var(--lake-soft); color: var(--lake); }
+
+/* Route line: stops as a vertical line, your stops emphasised */
+.route-line { list-style: none; margin: 0; padding: 0; }
+.route-line li { display: grid; grid-template-columns: 4.5rem 1.5rem 1fr; gap: 0.5rem; align-items: start; min-height: 2.75rem; position: relative; }
+.route-line .t { font-variant-numeric: tabular-nums; color: var(--ink-soft); text-align: right; padding-top: 0.05rem; }
+.route-line .dot { position: relative; height: 100%; display: flex; justify-content: center; }
+.route-line .dot::before { content: ""; position: absolute; top: 0; bottom: 0; width: 4px; background: var(--lake-soft); }
+.route-line li:first-child .dot::before { top: 0.6rem; }
+.route-line li:last-child .dot::before { bottom: calc(100% - 0.6rem); }
+.route-line .dot i { position: relative; margin-top: 0.3rem; width: 0.75rem; height: 0.75rem; border-radius: 50%; background: var(--surface); border: 3px solid var(--lake); }
+.route-line li.key .dot i { width: 1.1rem; height: 1.1rem; margin-top: 0.15rem; background: var(--lake); }
+.route-line li.key .n { font-weight: 700; }
+.route-line li.passed { opacity: 0.45; }
+.route-line li.next .n::after { content: "Next"; margin-left: 0.5rem; font-size: 0.75rem; font-weight: 700; background: var(--lake); color: var(--lake-ink); padding: 0.1rem 0.45rem; border-radius: 999px; vertical-align: 0.1em; }
+
+/* Journey guide: numbered real-world stages */
+.guide { counter-reset: stage; display: flex; flex-direction: column; gap: 0.75rem; }
+.stage { display: grid; grid-template-columns: 2.25rem 1fr; gap: 0.875rem; }
+.stage::before {
+  counter-increment: stage; content: counter(stage);
+  width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--lake); color: var(--lake-ink);
+  display: grid; place-items: center; font-family: var(--font-display); font-weight: 600;
+}
+.stage > div { min-width: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.bullets { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.3rem; }
+
+.check { display: flex; gap: 0.75rem; align-items: center; min-height: 3rem; padding: 0.25rem 0; cursor: pointer; }
+.check input { width: 1.6rem; height: 1.6rem; accent-color: var(--lake); flex: none; }
+.check.done span { text-decoration: line-through; color: var(--ink-soft); }
+
+.photo {
+  aspect-ratio: 4 / 3; max-width: 100%; border-radius: var(--radius-sm); overflow: hidden;
+  background: var(--surface-2); display: grid; place-items: center; text-align: center; color: var(--ink-soft);
+}
+.photo img { width: 100%; height: 100%; object-fit: cover; }
+.photo .ph { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; padding: 1rem; font-size: 0.9375rem; }
+.photo .ph svg { width: 3rem; height: 3rem; }
+
+.countdown { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; }
+
+/* ---------- Ride (live) mode ---------- */
+.ride-hero { background: var(--lake); color: var(--lake-ink); border-radius: var(--radius); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.ride-hero .label { opacity: 0.85; font-weight: 700; }
+.ride-hero .big { font-family: var(--font-display); font-weight: 600; font-size: 2rem; line-height: 1.15; text-wrap: balance; }
+.ride-hero.alert { background: var(--signal); color: var(--signal-ink); animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 10px rgb(242 179 61 / 25%); } }
+.progress { height: 10px; border-radius: 5px; background: rgb(255 255 255 / 25%); overflow: hidden; }
+.progress i { display: block; height: 100%; background: currentColor; border-radius: 5px; transition: width 0.6s ease; }
+.practice-tag { display: inline-flex; align-self: flex-start; padding: 0.2rem 0.6rem; border-radius: 999px; background: rgb(0 0 0 / 18%); font-size: 0.8125rem; font-weight: 700; }
+
+/* ---------- Done ---------- */
+.done { text-align: center; align-items: center; padding-top: 1.5rem; }
+.done-mark { width: 6rem; height: 6rem; border-radius: 50%; background: var(--good-soft); color: var(--good); display: grid; place-items: center; animation: pop 0.5s ease-out; }
+.done-mark svg { width: 3.25rem; height: 3.25rem; stroke-width: 2.6; }
+@keyframes pop { from { transform: scale(0.6); opacity: 0; } }
+
+/* ---------- Breathing ---------- */
+.breathe { display: grid; place-items: center; padding: 2rem 0; }
+.breathe-circle {
+  width: 11rem; height: 11rem; border-radius: 50%; background: var(--lake-soft); border: 4px solid var(--lake);
+  display: grid; place-items: center; font-family: var(--font-display); font-weight: 600; font-size: 1.2rem; color: var(--ink);
+  animation: breathe 8s ease-in-out infinite;
+}
+@keyframes breathe { 0%, 100% { transform: scale(0.72); } 50% { transform: scale(1); } }
+
+/* ---------- Forms ---------- */
+.field { display: flex; flex-direction: column; gap: 0.35rem; }
+.field label { font-weight: 700; }
+.field input, .field select {
+  min-height: var(--tap); border: 2px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); padding: 0.5rem 0.875rem; width: 100%;
+}
+.switch { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: var(--tap); cursor: pointer; }
+.switch input { appearance: none; width: 3.25rem; height: 2rem; border-radius: 999px; background: var(--line); position: relative; cursor: pointer; flex: none; transition: background 0.2s; }
+.switch input::after { content: ""; position: absolute; top: 0.25rem; left: 0.25rem; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--surface); transition: transform 0.2s; box-shadow: var(--shadow); }
+.switch input:checked { background: var(--lake); }
+.switch input:checked::after { transform: translateX(1.25rem); }
+.divider { height: 1px; background: var(--line); }
+
+.empty { text-align: center; padding: 1.5rem 1rem; color: var(--ink-soft); display: flex; flex-direction: column; gap: 0.75rem; align-items: center; }
+.empty svg { width: 3rem; height: 3rem; }
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(var(--bar-h) + 1rem + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+  background: var(--ink); color: var(--bg); padding: 0.75rem 1.25rem; border-radius: 999px; font-weight: 700; z-index: 20;
+  max-width: calc(100% - 32px); text-align: center;
+}
+
+.phone-num { font-variant-numeric: tabular-nums; font-weight: 700; user-select: all; }
+
+@media (min-width: 40rem) {
+  main { padding-top: 1rem; }
+  h1 { font-size: 2rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+:root[data-motion="reduce"] *, :root[data-motion="reduce"] *::before, :root[data-motion="reduce"] *::after { animation: none !important; transition: none !important; }
+
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="topbar" id="topbar"></header>
+  <main id="view" aria-live="polite"><p class="muted">Loading bus times…</p></main>
+</div>
+<div class="tabbar">
+  <nav aria-label="Main">
+    <button class="tab" data-action="nav" data-to="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11 12 4l8 7"/><path d="M6 10v10h12V10"/><path d="M10 20v-5h4v5"/></svg>Home</button>
+    <button class="tab" data-action="nav" data-to="trips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8L3.5 9.7l5.9-.8z"/></svg>My trips</button>
+    <button class="tab help-tab" data-action="nav" data-to="help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m5.6 5.6 3.6 3.6M14.8 14.8l3.6 3.6M18.4 5.6l-3.6 3.6M9.2 14.8l-3.6 3.6"/></svg>Help</button>
+    <button class="tab" data-action="nav" data-to="comfort"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Comfort</button>
+  </nav>
+</div>
+
+<script>
+/* Journey Buddy — plain JavaScript, no framework, no build step.
+   Every screen is a function that returns HTML. Clicks are handled in one place via data-action. */
+(function () {
+  "use strict";
+
+  /* ---------------- Storage (never trusted to exist) ---------------- */
+  const store = {
+    get(key, fallback) {
+      try { const v = localStorage.getItem("jb:" + key); return v == null ? fallback : JSON.parse(v); } catch (e) { return fallback; }
+    },
+    set(key, value) { try { localStorage.setItem("jb:" + key, JSON.stringify(value)); } catch (e) { /* storage blocked */ } },
+    clear() { try { Object.keys(localStorage).filter(k => k.startsWith("jb:")).forEach(k => localStorage.removeItem(k)); } catch (e) {} }
+  };
+
+  const DEFAULT_SETTINGS = {
+    size: "normal", calm: false, theme: "auto", motion: "auto", speak: false,
+    contactName: "", contactPhone: "", homeStop: "", pass: "none"
+  };
+
+  const state = {
+    data: null,
+    settings: Object.assign({}, DEFAULT_SETTINGS, store.get("settings", {})),
+    saved: store.get("saved", []),
+    history: store.get("history", []),
+    plan: { step: 1, to: null, from: null, day: "today", mode: "trip" },
+    sel: null,          // chosen journey
+    checks: {},          // ready-checklist ticks for the chosen journey
+    ride: null,          // live ride state
+    confirmClear: false,
+    position: null
+  };
+
+  /* ---------------- Icons (inline SVG, stroke = currentColor) ---------------- */
+  const P = {
+    bus: '<path d="M6 17h12M5 6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v11H5z"/><path d="M5 11h14"/><circle cx="8" cy="14" r=".5"/><circle cx="16" cy="14" r=".5"/><path d="M7 17v2M17 17v2"/>',
+    pin: '<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+    star: '<path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8L3.5 9.7l5.9-.8z"/>',
+    home: '<path d="M4 11 12 4l8 7"/><path d="M6 10v10h12V10"/><path d="M10 20v-5h4v5"/>',
+    help: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m5.6 5.6 3.6 3.6M14.8 14.8l3.6 3.6M18.4 5.6l-3.6 3.6M9.2 14.8l-3.6 3.6"/>',
+    sliders: '<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    walk: '<circle cx="13" cy="4.5" r="1.5"/><path d="m9 21 2.5-6.5L14 17v4M10 9.5 13 8l2.5 3.5L18 12M11.5 14.5 10 9.5 7 11v3"/>',
+    ticket: '<path d="M4 8a2 2 0 0 0 2-2h12a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H6a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2"/>',
+    chevron: '<path d="m9 6 6 6-6 6"/>',
+    back: '<path d="m15 6-6 6 6 6"/>',
+    speaker: '<path d="M4 10v4h3l5 4V6L7 10z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>',
+    phone: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+    message: '<path d="M4 5h16v11H9l-5 4z"/>',
+    check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.5"/>',
+    warn: '<path d="M12 4 2.5 20h19z"/><path d="M12 10v4M12 17v.5"/>',
+    camera: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+    play: '<path d="M8 5v14l11-7z"/>',
+    swap: '<path d="M7 4v14M3 14l4 4 4-4M17 20V6M13 10l4-4 4 4"/>',
+    leaf: '<path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14z"/><path d="M5 19 13 11"/>',
+    route: '<circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/>',
+    trash: '<path d="M4 7h16M10 7V4h4v3M6 7l1 13h10l1-13"/>',
+    bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>'
+  };
+  const icon = (name, extra) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${extra || ""}>${P[name] || ""}</svg>`;
+
+  /* ---------------- Small helpers ---------------- */
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const toMin = hhmm => { const [h, m] = hhmm.split(":").map(Number); return h * 60 + m; };
+  const fmt = min => {
+    min = ((Math.round(min) % 1440) + 1440) % 1440;
+    const h = Math.floor(min / 60), m = min % 60, ap = h < 12 ? "am" : "pm", h12 = h % 12 || 12;
+    return `${h12}:${String(m).padStart(2, "0")}${ap}`;
+  };
+  const dur = mins => {
+    mins = Math.max(0, Math.round(mins));
+    if (mins < 60) return `${mins} minute${mins === 1 ? "" : "s"}`;
+    const h = Math.floor(mins / 60), m = mins % 60;
+    return `${h} hour${h > 1 ? "s" : ""}${m ? ` ${m} min` : ""}`;
+  };
+  const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60; };
+  const dayCode = d => ["SU", "MF", "MF", "MF", "MF", "MF", "SA"][d.getDay()];
+  const dayName = d => d.toLocaleDateString("en-GB", { weekday: "long" });
+  const localISO = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const todayISO = () => localISO(new Date());
+  const dateFor = which => { const d = new Date(); if (which === "tomorrow") d.setDate(d.getDate() + 1); return d; };
+  const stop = id => state.data.stops[id] || { name: id, area: "", landmarks: [], tips: [], safety: [] };
+  const route = id => state.data.routes.find(r => r.id === id);
+  const money = n => "£" + n.toFixed(2);
+  const uid = () => Math.random().toString(36).slice(2, 9);
+
+  function distanceM(a, b) {
+    const R = 6371000, toR = x => x * Math.PI / 180;
+    const dLat = toR(b.lat - a.lat), dLon = toR(b.lon - a.lon);
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(toR(a.lat)) * Math.cos(toR(b.lat)) * Math.sin(dLon / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+
+  /* ---------------- Journey search ---------------- */
+  function findJourneys(fromId, toId, date) {
+    const day = dayCode(date), out = [];
+    for (const r of state.data.routes) {
+      for (const dir of Object.keys(r.patterns)) {
+        const pat = r.patterns[dir];
+        const i = pat.findIndex(s => s.stop === fromId), j = pat.findIndex(s => s.stop === toId);
+        if (i < 0 || j < 0 || j <= i) continue;
+        r.trips.forEach((t, k) => {
+          if (t.dir !== dir || !t.days.includes(day)) return;
+          t.times.forEach(time => {
+            const base = toMin(time);
+            out.push({
+              routeId: r.id, dir, from: fromId, to: toId, start: base,
+              dep: base + pat[i].offset, arr: base + pat[j].offset,
+              stops: pat.slice(i, j + 1).map(s => ({ stop: s.stop, time: base + s.offset })),
+              dateISO: localISO(date), dayLabel: dayName(date)
+            });
+          });
+        });
+      }
+    }
+    return out.sort((a, b) => a.dep - b.dep);
+  }
+  function upcoming(fromId, toId, which) {
+    const all = findJourneys(fromId, toId, dateFor(which));
+    if (which !== "today") return all;
+    const n = nowMin() - 1;
+    return all.filter(j => j.dep >= n);
+  }
+  function reachable(fromId) {
+    // stops you can get to directly from here
+    const set = new Set();
+    for (const r of state.data.routes) for (const pat of Object.values(r.patterns)) {
+      const i = pat.findIndex(s => s.stop === fromId);
+      if (i >= 0) pat.slice(i + 1).forEach(s => set.add(s.stop));
+    }
+    return set;
+  }
+  function busyNote(j) {
+    const r = route(j.routeId), day = dayCode(new Date(j.dateISO + "T12:00:00"));
+    const hit = (r.busy || []).find(b => b.days.includes(day) && j.dep >= toMin(b.from) && j.dep <= toMin(b.to));
+    return hit ? hit.note : null;
+  }
+  function fareText(r) {
+    const p = state.settings.pass;
+    if (p === "free") return "Free with your SmartPass";
+    if (p === "half") return `About ${money(r.fare.single / 2)} single with your Half Fare SmartPass`;
+    if (p === "ylink") return `Discount with your yLink card. Full fare ${money(r.fare.single)}`;
+    return `${money(r.fare.single)} single · ${money(r.fare.return)} return`;
+  }
+  const headsign = j => route(j.routeId).headsign[j.dir];
+
+  /* ---------------- Speech ---------------- */
+  function say(text, force) {
+    if (!(force || state.settings.speak)) return;
+    try {
+      if (!("speechSynthesis" in window)) return;
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "en-GB"; u.rate = 0.95;
+      speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+
+  /* ---------------- Rendering ---------------- */
+  const $app = () => document.getElementById("view");
+  let currentView = "home";
+
+  const VIEWS = {
+    home: { title: null, tab: "home", render: viewHome },
+    plan: { title: "Plan a trip", tab: "home", back: "home", render: viewPlan },
+    trip: { title: "Your journey", tab: "home", back: "plan", render: viewTrip },
+    ride: { title: "On the bus", tab: "home", back: "trip", render: viewRide },
+    done: { title: "Well done", tab: "home", render: viewDone },
+    trips: { title: "My trips", tab: "trips", render: viewTrips },
+    help: { title: "Help", tab: "help", render: viewHelp },
+    breathe: { title: "Take a moment", tab: "help", back: "help", render: viewBreathe },
+    comfort: { title: "Comfort settings", tab: "comfort", render: viewComfort },
+    about: { title: "About this app", tab: "comfort", back: "comfort", render: viewAbout }
+  };
+
+  function go(view, opts) {
+    if (!VIEWS[view]) view = "home";
+    if ((view === "trip" && !state.sel) || (view === "ride" && !state.ride)) view = state.sel ? "trip" : "home";
+    if (view !== "ride") stopRide(false);
+    currentView = view;
+    const hash = view === "home" ? "" : "#" + view;
+    if (location.hash !== hash) {
+      try { history.replaceState(null, "", hash || location.pathname + location.search); } catch (e) { location.hash = hash; }
+    }
+    render();
+    if (!(opts && opts.keepScroll)) window.scrollTo(0, 0);
+    const h = document.querySelector("main h1, main h2");
+    if (h && !(opts && opts.keepScroll)) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); }
+  }
+
+  function render() {
+    const v = VIEWS[currentView];
+    const top = document.getElementById("topbar");
+    top.innerHTML = v.title
+      ? `${v.back ? `<button class="icon-btn" data-action="nav" data-to="${v.back}" aria-label="Back">${icon("back")}</button>` : ""}
+         <h1>${esc(v.title)}</h1>
+         <button class="icon-btn" data-action="read-screen" aria-label="Read this screen out loud">${icon("speaker")}</button>`
+      : `<div class="brand"><span class="brand-mark">${icon("bus")}</span><b>Journey Buddy</b></div>
+         <button class="icon-btn" data-action="read-screen" aria-label="Read this screen out loud">${icon("speaker")}</button>`;
+    $app().innerHTML = v.render();
+    document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-current", t.dataset.to === v.tab ? "page" : "false"));
+  }
+
+  function sampleNotice() {
+    if (!state.data.meta.sample) return "";
+    return `<div class="notice" role="note">${icon("warn")}<div><b>Example times only.</b> This is a test version. Always check with Translink on <span class="phone-num">${esc(state.data.meta.helpline.phone)}</span> before you travel.</div></div>`;
+  }
+
+  function journeyCard(j, opts) {
+    const r = route(j.routeId), busy = busyNote(j);
+    const wait = j.dateISO === todayISO() ? j.dep - nowMin() : null;
+    const soon = wait != null && wait >= 0 && wait <= 90 ? `<span class="chip soon">${icon("clock")}${wait >= 0.5 ? `Leaves in ${dur(wait)}` : "Leaving now"}</span>` : "";
+    return `<button class="card journey" data-action="pick" data-j="${esc(JSON.stringify({ r: j.routeId, d: j.dir, s: j.start, f: j.from, t: j.to, w: j.dateISO }))}">
+      <div class="row"><span class="bus-badge"><span class="num">${esc(r.number)}</span>${esc(headsign(j))}</span>
+        <span class="grow"></span>${icon("chevron", ' style="width:1.4rem;height:1.4rem;color:var(--ink-soft)"')}</div>
+      <div class="times">
+        <div class="time">${fmt(j.dep)}<small>Leave ${esc(stop(j.from).name)}</small></div>
+        <div class="dash"></div>
+        <div class="time" style="text-align:right">${fmt(j.arr)}<small>Arrive ${esc(stop(j.to).name)}</small></div>
+      </div>
+      <div class="chips">${soon}<span class="chip">${icon("clock")}${dur(j.arr - j.dep)} on the bus</span>
+        ${busy ? `<span class="chip busy">${icon("warn")}${esc(busy)}</span>` : `<span class="chip quiet">${icon("leaf")}Usually quiet</span>`}
+        ${opts && opts.fare === false ? "" : `<span class="chip">${icon("ticket")}${esc(fareText(r))}</span>`}</div>
+    </button>`;
+  }
+
+  /* ---------- Home ---------- */
+  function viewHome() {
+    const hour = new Date().getHours();
+    const hello = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+    const fav = state.saved[0];
+    let next = "";
+    if (fav) {
+      const list = upcoming(fav.from, fav.to, "today");
+      const j = list[0];
+      next = `<section class="stack" aria-labelledby="next-h">
+        <div class="section-title"><h2 id="next-h">Your next trip</h2><button class="btn btn-quiet" style="min-height:2.5rem;padding:0.25rem 0.9rem" data-action="nav" data-to="trips">All trips</button></div>
+        ${j ? journeyCard(j) : `<div class="card flat"><b>${esc(stop(fav.from).name)} to ${esc(stop(fav.to).name)}</b><p class="muted">No more buses today. Check tomorrow's times in My trips.</p></div>`}
+      </section>`;
+    }
+    const doneCount = state.history.length;
+    return `
+      <section class="stack">
+        <p class="eyebrow">${esc(new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }))}</p>
+        <h1>${hello}. Where are you going today?</h1>
+      </section>
+      <div class="tiles">
+        <button class="tile primary" data-action="start-plan">
+          <span class="ico">${icon("route")}</span>
+          <span class="stack" style="gap:0.2rem;flex:1"><b>Plan a trip</b><span>Pick where you want to go</span></span>
+          ${icon("chevron", ' style="width:1.6rem;height:1.6rem"')}
+        </button>
+        <button class="tile" data-action="nav" data-to="trips"><span class="ico">${icon("star")}</span><span class="stack" style="gap:0.15rem"><b>My trips</b><span>${state.saved.length ? `${state.saved.length} saved` : "Your saved journeys"}</span></span></button>
+        <button class="tile" data-action="go-home"><span class="ico">${icon("home")}</span><span class="stack" style="gap:0.15rem"><b>Going home</b><span>${state.settings.homeStop ? "To " + esc(stop(state.settings.homeStop).name) : "Set your home stop"}</span></span></button>
+      </div>
+      ${next}
+      ${doneCount ? `<div class="notice good">${icon("check")}<div>You have made <b>${doneCount} journey${doneCount > 1 ? "s" : ""}</b> with Journey Buddy. Every trip gets easier.</div></div>` : ""}
+      ${sampleNotice()}`;
+  }
+
+  /* ---------- Plan ---------- */
+  function stopChoices(ids, action, selected, nearestId) {
+    const groups = {};
+    ids.forEach(id => { const a = stop(id).area || "Other"; (groups[a] = groups[a] || []).push(id); });
+    const order = ["Enniskillen", "Omagh", "Belfast"];
+    const keys = Object.keys(groups).sort((a, b) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99));
+    return keys.map(area => `
+      <div class="stack" style="gap:0.5rem">
+        <p class="eyebrow">${esc(area)}</p>
+        <div class="choices">${groups[area].map(id => `
+          <button class="choice${selected === id ? " selected" : ""}" data-action="${action}" data-id="${id}">
+            <span class="pin">${icon(id === state.settings.homeStop ? "home" : "pin")}</span>
+            <span class="grow"><b>${esc(stop(id).name)}</b>${id === nearestId ? "<small>Closest to you</small>" : id === state.settings.homeStop ? "<small>Your home stop</small>" : ""}</span>
+            ${icon("chevron")}
+          </button>`).join("")}</div>
+      </div>`).join("");
+  }
+  function allStopIds() {
+    const set = new Set();
+    state.data.routes.forEach(r => Object.values(r.patterns).forEach(p => p.forEach(s => set.add(s.stop))));
+    return [...set];
+  }
+  function nearestStop() {
+    if (!state.position) return null;
+    let best = null, bestD = Infinity;
+    for (const id of allStopIds()) { const s = stop(id); if (s.lat == null) continue; const d = distanceM(state.position, s); if (d < bestD) { bestD = d; best = id; } }
+    return bestD < 5000 ? best : null;
+  }
+
+  function viewPlan() {
+    const p = state.plan;
+    const bar = `<div class="steps" aria-label="Step ${p.step} of 3">${[1, 2, 3].map(n => `<i class="${n <= p.step ? "on" : ""}"></i>`).join("")}</div>`;
+    if (p.step === 1) {
+      return `${bar}<h2>Where do you want to go?</h2>
+        <p class="muted">Tap a place. You don't need to type anything.</p>
+        ${stopChoices(allStopIds(), "plan-to", p.to)}`;
+    }
+    if (p.step === 2) {
+      const near = nearestStop();
+      const ids = allStopIds().filter(id => id !== p.to && reachableTo(id, p.to));
+      if (near && ids.includes(near)) { ids.splice(ids.indexOf(near), 1); ids.unshift(near); }
+      return `${bar}<h2>Where are you starting from?</h2>
+        <p class="muted">Going to <b>${esc(stop(p.to).name)}</b></p>
+        ${"geolocation" in navigator && !state.position ? `<button class="btn btn-secondary" data-action="locate">${icon("pin")}Find the stop closest to me</button>` : ""}
+        ${ids.length ? stopChoices(ids, "plan-from", p.from, near) : `<div class="empty">${icon("info")}<p>No direct buses go there yet in this version.</p></div>`}`;
+    }
+    const list = upcoming(p.from, p.to, p.day);
+    const tomorrow = p.day === "today" && !list.length ? upcoming(p.from, p.to, "tomorrow") : [];
+    const lastToday = findJourneys(p.from, p.to, dateFor(p.day)).slice(-1)[0];
+    return `${bar}
+      <div class="stack" style="gap:0.25rem"><h2>${esc(stop(p.from).name)} to ${esc(stop(p.to).name)}</h2>
+        <button class="btn btn-quiet" style="align-self:flex-start;min-height:2.5rem;padding:0.25rem 0.9rem" data-action="plan-swap">${icon("swap")}Swap direction</button></div>
+      <div class="seg" role="group" aria-label="Which day">
+        <button aria-pressed="${p.day === "today"}" data-action="plan-day" data-day="today">Today</button>
+        <button aria-pressed="${p.day === "tomorrow"}" data-action="plan-day" data-day="tomorrow">Tomorrow</button>
+      </div>
+      ${list.length ? `<p class="muted">Tap a bus to see your step-by-step guide.</p>${list.slice(0, 6).map(j => journeyCard(j)).join("")}
+        ${lastToday ? `<div class="notice info">${icon("info")}<div>The last bus ${p.day === "today" ? "today" : "tomorrow"} leaves at <b>${fmt(lastToday.dep)}</b>.</div></div>` : ""}`
+        : `<div class="card flat stack"><h3>No more buses ${p.day}</h3><p class="muted">${tomorrow.length ? `The first bus tomorrow leaves at <b>${fmt(tomorrow[0].dep)}</b>.` : "There are no buses on this day."}</p>
+          ${tomorrow.length ? `<button class="btn btn-secondary" data-action="plan-day" data-day="tomorrow">See tomorrow's buses</button>` : ""}</div>`}
+      ${sampleNotice()}`;
+  }
+  function reachableTo(fromId, toId) { return reachable(fromId).has(toId); }
+
+  /* ---------- Trip guide ---------- */
+  function viewTrip() {
+    const j = state.sel, r = route(j.routeId), from = stop(j.from), to = stop(j.to);
+    const isToday = j.dateISO === todayISO();
+    const wait = isToday ? j.dep - nowMin() : null;
+    const saved = state.saved.find(s => s.from === j.from && s.to === j.to);
+    const ret = findJourneys(j.to, j.from, new Date(j.dateISO + "T12:00:00")).filter(x => x.dep >= j.arr + 10);
+    const lastRet = ret[ret.length - 1];
+    const checks = [
+      ["ticket", state.settings.pass !== "none" ? "My SmartPass or travel card" : "Money or a bank card for my ticket"],
+      ["phone", "My phone is charged"],
+      ["tell", state.settings.contactName ? `I told ${esc(state.settings.contactName)} where I'm going` : "I told someone where I'm going"],
+      ["jam", "My JAM card, if I use one"],
+      ["home", "I know when the last bus home is"]
+    ];
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${from.lat},${from.lon}&travelmode=walking`;
+    return `
+      <section class="card stack">
+        <div class="row"><span class="bus-badge"><span class="num">${esc(r.number)}</span>${esc(headsign(j))}</span><span class="muted small">${esc(r.kind)}</span></div>
+        <div class="times">
+          <div class="time">${fmt(j.dep)}<small>${esc(from.name)}</small></div><div class="dash"></div>
+          <div class="time" style="text-align:right">${fmt(j.arr)}<small>${esc(to.name)}</small></div>
+        </div>
+        <p class="countdown">${wait == null ? `${esc(j.dayLabel)}` : wait >= 0.5 ? `Your bus leaves in ${dur(wait)}` : wait > -2 ? "Your bus is leaving now" : "This bus has already left"}</p>
+        <button class="btn btn-primary btn-block" data-action="start-ride">${icon("bus")}Start my journey</button>
+        <div class="row" style="flex-wrap:wrap;gap:0.5rem">
+          <button class="btn btn-quiet grow" data-action="practice">${icon("play")}Practise first</button>
+          <button class="btn btn-secondary grow" data-action="toggle-save" aria-pressed="${!!saved}">${icon("star", saved ? ' fill="currentColor"' : "")}${saved ? "Saved" : "Save trip"}</button>
+        </div>
+      </section>
+
+      <section class="guide" aria-label="Step by step">
+        <div class="stage"><div>
+          <h2>Get ready</h2>
+          ${checks.map(([k, label]) => `<label class="check${state.checks[k] ? " done" : ""}"><input type="checkbox" id="chk-${k}" data-action="check" data-k="${k}"${state.checks[k] ? " checked" : ""}><span>${label}</span></label>`).join("")}
+          <p class="muted small">${icon("ticket", ' style="width:1rem;height:1rem;vertical-align:-0.15em"')} ${esc(fareText(r))}. You can pay the driver by card or cash.</p>
+        </div></div>
+
+        <div class="stage"><div>
+          <h2>Get to the stop</h2>
+          <div class="photo">${from.photo ? `<img src="${esc(from.photo)}" alt="Photo of ${esc(from.name)} bus stop">` : `<div class="ph">${icon("camera")}<span>Photo of ${esc(from.name)} coming soon</span></div>`}</div>
+          ${from.landmarks.length ? `<div><h3>What to look for</h3><ul class="bullets">${from.landmarks.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
+          ${from.safety.length ? `<div class="notice info">${icon("walk")}<div>${from.safety.map(esc).join(". ")}.</div></div>` : ""}
+          ${from.tips.length ? `<ul class="bullets">${from.tips.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+          <a class="btn btn-secondary" href="${mapsUrl}" target="_blank" rel="noopener">${icon("walk")}Walking directions to the stop</a>
+          <p class="muted small">Try to be at the stop 5 minutes early, for ${fmt(j.dep - 5)}.</p>
+        </div></div>
+
+        <div class="stage"><div>
+          <h2>Get on the right bus</h2>
+          <p>Look at the sign on the front of the bus. It should say:</p>
+          <div class="blind" aria-label="Bus ${esc(r.number)} to ${esc(headsign(j))}"><span>${esc(headsign(j))}</span><span class="num">${esc(r.number)}</span></div>
+          <p>Tell the driver: <b>"${state.settings.pass === "free" || state.settings.pass === "half" ? "Hello, I'm going to " + esc(to.name) + "." : "A single to " + esc(to.name) + ", please."}"</b></p>
+          <p class="muted small">Not sure it's the right bus? It's fine to ask the driver "Does this bus go to ${esc(to.name)}?"</p>
+        </div></div>
+
+        <div class="stage"><div>
+          <h2>On the bus</h2>
+          <p>There ${j.stops.length - 2 === 1 ? "is 1 stop" : `are ${j.stops.length - 2} stops`} before yours. Press the bell when you see your stop is next.</p>
+          ${routeLine(j)}
+          ${to.landmarks.length ? `<div><h3>You'll know you're there when you see</h3><ul class="bullets">${to.landmarks.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
+        </div></div>
+
+        <div class="stage"><div>
+          <h2>Getting home</h2>
+          ${ret.length ? `<p>Buses back from ${esc(to.name)}:</p>
+            <div class="chips">${ret.slice(0, 5).map(x => `<span class="chip">${fmt(x.dep)}</span>`).join("")}</div>
+            <div class="notice">${icon("warn")}<div>The <b>last bus back</b> leaves at <b>${fmt(lastRet.dep)}</b>. Don't miss it.</div></div>`
+            : `<div class="notice">${icon("warn")}<div>There is <b>no bus back</b> after this one on ${esc(j.dayLabel)}. Plan another way home before you go.</div></div>`}
+          ${to.tips.length ? `<ul class="bullets">${to.tips.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+        </div></div>
+      </section>
+      ${sampleNotice()}`;
+  }
+
+  function routeLine(j, live) {
+    return `<ol class="route-line">${j.stops.map((s, i) => {
+      const key = i === 0 || i === j.stops.length - 1;
+      let cls = key ? "key" : "";
+      if (live) { if (s.time < live.now - 0.5 && i < live.nextIdx) cls += " passed"; if (i === live.nextIdx && live.now >= j.dep) cls += " next"; }
+      return `<li class="${cls}"><span class="t">${fmt(s.time)}</span><span class="dot"><i></i></span><span class="n">${esc(stop(s.stop).name)}${i === j.stops.length - 1 ? " · get off here" : i === 0 ? " · get on here" : ""}</span></li>`;
+    }).join("")}</ol>`;
+  }
+
+  /* ---------- Ride (live journey support) ---------- */
+  let rideTimer = null, wakeLock = null, geoWatch = null;
+
+  function rideNow() {
+    const r = state.ride;
+    if (r.practice) return r.simStart + (Date.now() - r.startedAt) / 1000 / r.secsPerMin;
+    return nowMin();
+  }
+  function startRide(practice) {
+    const j = state.sel;
+    state.ride = {
+      practice, alerted: false, startedAt: Date.now(), secsPerMin: 1.5,
+      simStart: j.dep - 1, distance: null
+    };
+    unlockAudio();
+    go("ride");
+    startRideTimer();
+    say(practice ? `Practice journey. Bus ${route(j.routeId).number} to ${headsign(j)}.` : `Journey started. Get off at ${stop(j.to).name}, at about ${fmt(j.arr)}.`);
+  }
+  function startRideTimer() {
+    if (rideTimer) clearInterval(rideTimer);
+    rideTimer = setInterval(() => { if (currentView === "ride") { $app().innerHTML = viewRide(); } }, state.ride.practice ? 500 : 10000);
+    try { navigator.wakeLock && navigator.wakeLock.request("screen").then(l => { wakeLock = l; }).catch(() => {}); } catch (e) {}
+    if (!state.ride.practice && geoWatch == null && "geolocation" in navigator) {
+      try {
+        geoWatch = navigator.geolocation.watchPosition(pos => {
+          state.position = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+          const dest = stop(state.sel.to);
+          if (state.ride && dest.lat != null) state.ride.distance = distanceM(state.position, dest);
+        }, () => {}, { enableHighAccuracy: true, maximumAge: 15000 });
+      } catch (e) {}
+    }
+  }
+  function stopRide(clearState) {
+    if (rideTimer) { clearInterval(rideTimer); rideTimer = null; }
+    if (geoWatch != null) { try { navigator.geolocation.clearWatch(geoWatch); } catch (e) {} geoWatch = null; }
+    if (wakeLock) { try { wakeLock.release(); } catch (e) {} wakeLock = null; }
+    if (clearState !== false) state.ride = null;
+  }
+
+  let audioCtx = null;
+  function unlockAudio() { try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume(); } catch (e) {} }
+  function chime() {
+    try {
+      if (!audioCtx) return;
+      [660, 880, 990].forEach((f, i) => {
+        const o = audioCtx.createOscillator(), g = audioCtx.createGain(), t = audioCtx.currentTime + i * 0.28;
+        o.frequency.value = f; o.type = "sine";
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.25, t + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+        o.connect(g).connect(audioCtx.destination); o.start(t); o.stop(t + 0.55);
+      });
+    } catch (e) {}
+  }
+
+  function viewRide() {
+    const j = state.sel, R = state.ride, now = rideNow(), to = stop(j.to);
+    let nextIdx = j.stops.findIndex(s => s.time > now);
+    if (nextIdx < 0) nextIdx = j.stops.length - 1;
+    const left = j.arr - now;
+    const pct = Math.min(100, Math.max(0, ((now - j.dep) / (j.arr - j.dep)) * 100));
+    const near = (R.distance != null && R.distance < 800) || left <= 3;
+    if (near && !R.alerted) {
+      R.alerted = true;
+      try { navigator.vibrate && navigator.vibrate([400, 200, 400, 200, 400]); } catch (e) {}
+      chime();
+      say(`Get ready. Your stop, ${to.name}, is next. Press the bell.`, true);
+    }
+    const before = now < j.dep;
+    const nextName = stop(j.stops[nextIdx].stop).name;
+    const hero = before
+      ? `<div class="ride-hero">${R.practice ? '<span class="practice-tag">Practice</span>' : ""}
+          <span class="label">Waiting for your bus</span>
+          <span class="big">Bus ${esc(route(j.routeId).number)} to ${esc(headsign(j))}</span>
+          <span>Leaves ${esc(stop(j.from).name)} at ${fmt(j.dep)}${j.dep - now >= 0.5 ? `, in ${dur(j.dep - now)}` : ". Leaving now"}</span></div>`
+      : near
+        ? `<div class="ride-hero alert" role="alert">${R.practice ? '<span class="practice-tag">Practice</span>' : ""}
+            <span class="label">${icon("bell", ' style="width:1.2rem;height:1.2rem;vertical-align:-0.2em"')} Get ready</span>
+            <span class="big">Your stop is next. Press the bell.</span>
+            <span>${esc(to.name)}${left > 0 ? ` · about ${dur(left)}` : ""}</span></div>`
+        : `<div class="ride-hero">${R.practice ? '<span class="practice-tag">Practice</span>' : ""}
+            <span class="label">Next stop</span>
+            <span class="big">${esc(nextName)}</span>
+            <span>Your stop is <b>${esc(to.name)}</b>, about ${fmt(j.arr)}${left > 0 ? ` (${dur(left)})` : ""}</span>
+            <div class="progress" aria-hidden="true"><i style="width:${pct}%"></i></div></div>`;
+    return `${hero}
+      ${!R.practice ? `<div class="notice info">${icon("info")}<div>Times come from the timetable, and buses can run late. Keep looking out of the window for your stop.${R.distance != null ? ` You are about <b>${(R.distance / 1000).toFixed(1)} km</b> from your stop.` : ""}</div></div>` : ""}
+      <section class="card stack">${routeLine(j, { now, nextIdx })}</section>
+      ${to.landmarks.length ? `<section class="stack"><h2>Look out for</h2><ul class="bullets">${to.landmarks.map(x => `<li>${esc(x)}</li>`).join("")}</ul></section>` : ""}
+      <button class="btn btn-primary btn-block" data-action="got-off">${icon("check")}I've got off the bus</button>
+      <div class="row"><button class="btn btn-secondary grow" data-action="nav" data-to="help">${icon("help")}I need help</button>
+        <button class="btn btn-quiet grow" data-action="end-ride">Stop</button></div>`;
+  }
+
+  /* ---------- Done ---------- */
+  function viewDone() {
+    const last = state.history[state.history.length - 1];
+    const times = last ? state.history.filter(h => h.from === last.from && h.to === last.to).length : 0;
+    return `<section class="stack done">
+      <div class="done-mark">${icon("check")}</div>
+      <h1>You did it!</h1>
+      ${last ? `<p>You travelled from <b>${esc(stop(last.from).name)}</b> to <b>${esc(stop(last.to).name)}</b>.</p>
+      <p class="muted">${times > 1 ? `That's ${times} times you've made this journey. It's getting familiar.` : "That's your first time making this journey with Journey Buddy."}</p>` : ""}
+    </section>
+    ${last ? `<button class="btn btn-primary btn-block" data-action="plan-return">${icon("home")}Plan my journey back</button>` : ""}
+    <button class="btn btn-secondary btn-block" data-action="nav" data-to="home">Back to start</button>`;
+  }
+
+  /* ---------- My trips ---------- */
+  function viewTrips() {
+    const recent = [];
+    const seen = new Set();
+    for (const h of state.history.slice().reverse()) {
+      const k = h.from + ">" + h.to;
+      if (seen.has(k) || state.saved.some(s => s.from === h.from && s.to === h.to)) continue;
+      seen.add(k); recent.push(h); if (recent.length >= 4) break;
+    }
+    const tripRow = (t, savedTrip) => {
+      const next = upcoming(t.from, t.to, "today")[0] || null;
+      const count = state.history.filter(h => h.from === t.from && h.to === t.to).length;
+      return `<div class="card stack">
+        <div class="row"><span class="pin">${icon(savedTrip ? "star" : "clock")}</span>
+          <div class="grow"><b>${esc(stop(t.from).name)} to ${esc(stop(t.to).name)}</b>
+          <p class="muted small">${next ? `Next bus ${fmt(next.dep)}` : "No more buses today"}${count ? ` · done ${count} time${count > 1 ? "s" : ""}` : ""}</p></div></div>
+        <div class="row" style="flex-wrap:wrap;gap:0.5rem">
+          <button class="btn btn-primary grow" data-action="open-trip" data-from="${t.from}" data-to="${t.to}">See buses</button>
+          <button class="btn btn-quiet" data-action="open-trip" data-from="${t.to}" data-to="${t.from}">${icon("swap")}Way back</button>
+          ${savedTrip ? `<button class="icon-btn" data-action="unsave" data-id="${t.id}" aria-label="Remove saved trip">${icon("trash")}</button>` : ""}
+        </div></div>`;
+    };
+    return `
+      <section class="stack"><h2>Saved trips</h2>
+        ${state.saved.length ? state.saved.map(t => tripRow(t, true)).join("")
+          : `<div class="card flat empty">${icon("star")}<p>Trips you save show up here, so your regular journeys are one tap away.</p><button class="btn btn-primary" data-action="start-plan">Plan a trip</button></div>`}
+      </section>
+      ${recent.length ? `<section class="stack"><h2>Recent journeys</h2>${recent.map(t => tripRow(t, false)).join("")}</section>` : ""}`;
+  }
+
+  /* ---------- Help ---------- */
+  function viewHelp() {
+    const s = state.settings, phone = state.data.meta.helpline.phone;
+    const ride = state.sel;
+    const issues = [
+      ["wrong", "I think I'm on the wrong bus", ["Stay calm. This happens to lots of people.", "Ask the driver: \"Does this bus go to " + (ride ? stop(ride.to).name : "my stop") + "?\"", "If not, get off at the next stop and ask the driver which bus to take.", "Call your contact if you want some help."]],
+      ["missed-stop", "I missed my stop", ["That's okay. Press the bell and get off at the next stop.", "Tell the driver you missed your stop. They can tell you how to get back.", "Use Plan a trip to find a bus back."]],
+      ["missed-bus", "I missed my bus", ["It's okay. Check when the next bus is.", "If there are no more buses today, call your contact to help you get home."]],
+      ["late", "My bus hasn't come", ["Buses can be a few minutes late, especially in the country.", "Check you're at the right stop. Look at the photo and landmarks in your journey guide.", `If it is more than 15 minutes late, call Translink on ${phone}.`]]
+    ];
+    const smsBody = encodeURIComponent("Hi, it's me. I'm using Journey Buddy and need some help." + (state.position ? ` I'm here: https://maps.google.com/?q=${state.position.lat.toFixed(5)},${state.position.lon.toFixed(5)}` : ""));
+    return `
+      ${state.ride ? `<button class="btn btn-primary" data-action="resume-ride">${icon("back")}Back to my journey</button>` : ""}
+      <section class="stack"><h2>You're doing fine.</h2><p class="muted">Pick what's happening and we'll go through it together.</p></section>
+      ${s.contactPhone ? `<section class="card stack">
+          <p class="eyebrow">My contact</p>
+          <div class="row"><span class="pin">${icon("phone")}</span><div class="grow"><b>${esc(s.contactName || "My contact")}</b><p class="phone-num">${esc(s.contactPhone)}</p></div></div>
+          <div class="row" style="flex-wrap:wrap;gap:0.5rem">
+            <a class="btn btn-primary grow" href="tel:${esc(s.contactPhone.replace(/[^\d+]/g, ""))}">${icon("phone")}Call</a>
+            <a class="btn btn-secondary grow" href="sms:${esc(s.contactPhone.replace(/[^\d+]/g, ""))}?&body=${smsBody}">${icon("message")}Send a text</a>
+          </div>
+          ${"geolocation" in navigator && !state.position ? `<button class="btn btn-quiet" data-action="locate">${icon("pin")}Add my location to the text</button>` : state.position ? `<p class="muted small">Your text will include where you are.</p>` : ""}
+        </section>`
+        : `<div class="card flat stack"><p>Add someone you trust, like a family member or support worker, so you can call them from here.</p><button class="btn btn-secondary" data-action="nav" data-to="comfort">Add my contact</button></div>`}
+      <section class="stack">${issues.map(([k, title, steps]) => `
+        <details class="card" id="help-${k}"><summary style="cursor:pointer;font-weight:700;min-height:2rem;display:flex;align-items:center">${esc(title)}</summary>
+          <ol class="bullets" style="margin-top:0.75rem">${steps.map(x => `<li>${esc(x)}</li>`).join("")}</ol></details>`).join("")}
+        <button class="card choice" data-action="nav" data-to="breathe" style="box-shadow:var(--shadow);border:0"><span class="pin">${icon("leaf")}</span><span class="grow"><b>I feel worried or overwhelmed</b><small>A short breathing exercise</small></span>${icon("chevron")}</button>
+      </section>
+      <section class="card flat stack">
+        <div class="row"><span class="pin">${icon("bus")}</span><div class="grow"><b>Translink help line</b><p class="phone-num">${esc(phone)}</p></div></div>
+        <div class="row"><span class="pin" style="color:var(--danger)">${icon("warn")}</span><div class="grow"><b>In an emergency call 999</b></div></div>
+      </section>
+      <div class="notice info">${icon("info")}<div>If you have a <b>JAM card</b> ("Just A Minute"), you can show it to the driver. It lets them know you may need a bit more time.</div></div>`;
+  }
+
+  function viewBreathe() {
+    return `<section class="stack" style="text-align:center;align-items:center">
+        <h2>Let's breathe together</h2>
+        <p class="muted">Breathe in as the circle grows. Breathe out as it gets smaller.</p>
+      </section>
+      <div class="breathe"><div class="breathe-circle" id="breathe-label">Breathe in</div></div>
+      <p class="muted" style="text-align:center">You are safe. Take as long as you need.</p>
+      <button class="btn btn-secondary btn-block" data-action="nav" data-to="help">I feel a bit better</button>`;
+  }
+
+  /* ---------- Comfort settings ---------- */
+  function viewComfort() {
+    const s = state.settings;
+    const seg = (key, opts) => `<div class="seg" role="group">${opts.map(([v, l]) => `<button aria-pressed="${s[key] === v}" data-action="set" data-k="${key}" data-v="${v}">${l}</button>`).join("")}</div>`;
+    return `
+      <section class="card stack">
+        <h2>How it looks</h2>
+        <div class="field"><span id="lbl-size" style="font-weight:700">Text size</span>${seg("size", [["normal", "Aa"], ["large", "Aa+"], ["xlarge", "Aa++"]])}</div>
+        <div class="field"><span style="font-weight:700">Light or dark</span>${seg("theme", [["auto", "Auto"], ["light", "Light"], ["dark", "Dark"]])}</div>
+        <label class="switch" for="set-calm"><span><b>Calm colours</b><br><span class="muted small">Fewer colours on screen</span></span><input type="checkbox" id="set-calm" data-action="toggle" data-k="calm"${s.calm ? " checked" : ""}></label>
+        <label class="switch" for="set-motion"><span><b>Less movement</b><br><span class="muted small">Turn off animations</span></span><input type="checkbox" id="set-motion" data-action="toggle" data-k="motion"${s.motion === "reduce" ? " checked" : ""}></label>
+        <label class="switch" for="set-speak"><span><b>Read things out loud</b><br><span class="muted small">Speak alerts and journey steps</span></span><input type="checkbox" id="set-speak" data-action="toggle" data-k="speak"${s.speak ? " checked" : ""}></label>
+      </section>
+      <section class="card stack">
+        <h2>My travel</h2>
+        <div class="field"><label for="set-home">My home stop</label>
+          <select id="set-home" data-action="field" data-k="homeStop"><option value="">Not set</option>${allStopIds().map(id => `<option value="${id}"${s.homeStop === id ? " selected" : ""}>${esc(stop(id).name)}</option>`).join("")}</select></div>
+        <div class="field"><label for="set-pass">My bus pass</label>
+          <select id="set-pass" data-action="field" data-k="pass">
+            ${[["none", "No pass, I pay a fare"], ["half", "Half Fare SmartPass"], ["free", "Free SmartPass (e.g. 60+ or disability)"], ["ylink", "yLink card (age 16 to 23)"]].map(([v, l]) => `<option value="${v}"${s.pass === v ? " selected" : ""}>${l}</option>`).join("")}
+          </select></div>
+      </section>
+      <section class="card stack">
+        <h2>Someone I trust</h2>
+        <p class="muted small">This person shows on the Help screen so you can call or text them quickly. It stays on this phone only.</p>
+        <div class="field"><label for="set-cname">Name</label><input id="set-cname" data-action="field" data-k="contactName" value="${esc(s.contactName)}" placeholder="For example, Mum or Bernadette" autocomplete="off"></div>
+        <div class="field"><label for="set-cphone">Phone number</label><input id="set-cphone" type="tel" inputmode="tel" data-action="field" data-k="contactPhone" value="${esc(s.contactPhone)}" placeholder="07..." autocomplete="off"></div>
+      </section>
+      <section class="stack">
+        <button class="btn btn-secondary" data-action="nav" data-to="about">${icon("info")}About Journey Buddy</button>
+        ${state.confirmClear
+          ? `<div class="card flat stack"><p><b>Delete all saved trips, journeys and settings on this phone?</b></p><div class="row"><button class="btn btn-danger grow" data-action="clear-yes">Yes, delete</button><button class="btn btn-quiet grow" data-action="clear-no">Keep them</button></div></div>`
+          : `<button class="btn btn-quiet" data-action="clear-ask">${icon("trash")}Delete my saved data</button>`}
+      </section>`;
+  }
+
+  function viewAbout() {
+    return `<section class="stack">
+        <p>Journey Buddy helps you plan, make and finish bus journeys around Fermanagh with more confidence: from leaving home to getting back again.</p>
+        <p>It was shaped by NOW Group participants and staff at a STRIDE design thinking workshop in Enniskillen in July 2026.</p>
+        <h2>Your privacy</h2>
+        <p>Journey Buddy has no accounts. Your saved trips, contact and settings stay on this phone and are never sent anywhere.</p>
+        <h2>Bus times</h2>
+        <p>${state.data.meta.sample ? "This test version uses <b>example times</b>, not real ones. " : ""}Bus times come from the timetable and buses can run late. Check with Translink on <span class="phone-num">${esc(state.data.meta.helpline.phone)}</span> if you are unsure.</p>
+        <p class="muted small">Timetable data updated ${esc(state.data.meta.updated)}.</p>
+      </section>`;
+  }
+
+  /* ---------------- Actions ---------------- */
+  function toast(msg) {
+    const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = msg;
+    document.body.appendChild(t); setTimeout(() => t.remove(), 2400);
+  }
+  function persist() { store.set("settings", state.settings); store.set("saved", state.saved); store.set("history", state.history); }
+  function applySettings() {
+    const s = state.settings, root = document.documentElement;
+    root.dataset.size = s.size;
+    root.dataset.calm = s.calm ? "on" : "off";
+    if (s.theme === "auto") root.removeAttribute("data-theme"); else root.dataset.theme = s.theme;
+    root.dataset.motion = s.motion;
+  }
+  function locate(after) {
+    try {
+      navigator.geolocation.getCurrentPosition(pos => {
+        state.position = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+        render(); if (after) after();
+      }, () => toast("We couldn't find your location. Pick from the list instead."), { timeout: 10000, maximumAge: 60000 });
+    } catch (e) { toast("Location isn't available here. Pick from the list instead."); }
+  }
+
+  const ACTIONS = {
+    nav: el => go(el.dataset.to),
+    "start-plan": () => { state.plan = { step: 1, to: null, from: null, day: "today" }; go("plan"); },
+    "plan-to": el => { state.plan.to = el.dataset.id; state.plan.step = 2; go("plan"); },
+    "plan-from": el => { state.plan.from = el.dataset.id; state.plan.step = 3; go("plan"); },
+    "plan-day": el => { state.plan.day = el.dataset.day; go("plan", { keepScroll: true }); },
+    "plan-swap": () => { const p = state.plan; [p.from, p.to] = [p.to, p.from]; go("plan", { keepScroll: true }); },
+    "go-home": () => {
+      const home = state.settings.homeStop;
+      if (!home) { toast("Choose your home stop first"); go("comfort"); return; }
+      state.plan = { step: 2, to: home, from: null, day: "today" };
+      go("plan");
+    },
+    "open-trip": el => { state.plan = { step: 3, from: el.dataset.from, to: el.dataset.to, day: "today" }; go("plan"); },
+    "plan-return": () => {
+      const last = state.history[state.history.length - 1];
+      state.plan = { step: 3, from: last.to, to: last.from, day: "today" }; go("plan");
+    },
+    pick: el => {
+      const k = JSON.parse(el.dataset.j);
+      const date = new Date(k.w + "T12:00:00");
+      state.sel = findJourneys(k.f, k.t, date).find(j => j.routeId === k.r && j.dir === k.d && j.start === k.s);
+      state.checks = {};
+      go("trip");
+    },
+    check: el => { state.checks[el.dataset.k] = el.checked; el.closest(".check").classList.toggle("done", el.checked); },
+    "toggle-save": () => {
+      const j = state.sel, i = state.saved.findIndex(s => s.from === j.from && s.to === j.to);
+      if (i >= 0) { state.saved.splice(i, 1); toast("Removed from My trips"); }
+      else { state.saved.unshift({ id: uid(), from: j.from, to: j.to }); toast("Saved to My trips"); }
+      persist(); go("trip", { keepScroll: true });
+    },
+    unsave: el => { state.saved = state.saved.filter(s => s.id !== el.dataset.id); persist(); toast("Removed"); go("trips", { keepScroll: true }); },
+    "start-ride": () => startRide(false),
+    "resume-ride": () => { go("ride"); startRideTimer(); },
+    practice: () => startRide(true),
+    "end-ride": () => { stopRide(); go("trip"); },
+    "got-off": () => {
+      const wasPractice = state.ride && state.ride.practice;
+      stopRide();
+      if (!wasPractice) { state.history.push({ from: state.sel.from, to: state.sel.to, routeId: state.sel.routeId, at: Date.now() }); persist(); }
+      if (wasPractice) { toast("Practice finished. You're ready!"); go("trip"); return; }
+      say("Well done. You did it!");
+      go("done");
+    },
+    set: el => { state.settings[el.dataset.k] = el.dataset.v; persist(); applySettings(); go(currentView, { keepScroll: true }); },
+    toggle: el => {
+      const k = el.dataset.k;
+      state.settings[k] = k === "motion" ? (el.checked ? "reduce" : "auto") : el.checked;
+      persist(); applySettings();
+      if (k === "speak" && el.checked) say("Read out loud is on.", true);
+    },
+    field: el => { state.settings[el.dataset.k] = el.value.trim(); persist(); },
+    locate: () => locate(),
+    "clear-ask": () => { state.confirmClear = true; go("comfort", { keepScroll: true }); },
+    "clear-no": () => { state.confirmClear = false; go("comfort", { keepScroll: true }); },
+    "clear-yes": () => {
+      store.clear(); state.settings = Object.assign({}, DEFAULT_SETTINGS); state.saved = []; state.history = []; state.confirmClear = false;
+      applySettings(); toast("Your saved data has been deleted"); go("comfort");
+    },
+    "read-screen": () => {
+      const main = document.querySelector("main");
+      const text = (main.innerText || "").replace(/\s+\n/g, "\n").slice(0, 1200);
+      say(text, true);
+    }
+  };
+
+  function onClick(e) {
+    const el = e.target.closest("[data-action]");
+    if (!el) return;
+    const a = el.dataset.action;
+    if (a === "check" || a === "toggle" || a === "field") return; // handled on change
+    if (ACTIONS[a]) { e.preventDefault(); ACTIONS[a](el); }
+  }
+  function onChange(e) {
+    const el = e.target.closest("[data-action]");
+    if (!el) return;
+    const a = el.dataset.action;
+    if ((a === "check" || a === "toggle" || a === "field") && ACTIONS[a]) ACTIONS[a](el);
+  }
+
+  /* Breathing label follows the 8s CSS cycle */
+  setInterval(() => {
+    const el = document.getElementById("breathe-label");
+    if (el) el.textContent = (Math.floor(Date.now() / 4000) % 2 === 0) ? "Breathe in" : "Breathe out";
+  }, 500);
+
+  /* ---------------- Boot ---------------- */
+  async function loadData() {
+    const res = await fetch("/api/timetable", { credentials: "same-origin", cache: "no-cache" });
+    if (res.status === 401) { const e = new Error("Passcode needed"); e.needsPasscode = true; throw e; }
+    if (!res.ok) throw new Error("Could not load timetable");
+    return res.json();
+  }
+
+  /* Shared passcode: asked once, then the phone stays signed in for 90 days. */
+  function showPasscode(message) {
+    document.querySelector(".tabbar").hidden = true;
+    document.getElementById("topbar").innerHTML =
+      `<div class="brand"><span class="brand-mark">${icon("bus")}</span><b>Journey Buddy</b></div>`;
+    $app().innerHTML = `
+      <section class="stack">
+        <h1>Welcome</h1>
+        <p class="muted">Type the passcode staff gave you. You only need to do this once on this phone.</p>
+      </section>
+      <form class="card stack" id="passcode-form" novalidate>
+        <div class="field">
+          <label for="passcode">Passcode</label>
+          <input id="passcode" name="passcode" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false" required>
+        </div>
+        ${message ? `<div class="notice" role="alert">${icon("warn")}<div>${esc(message)}</div></div>` : ""}
+        <button class="btn btn-primary btn-block" type="submit">${icon("check")}Start</button>
+      </form>`;
+    const form = document.getElementById("passcode-form");
+    const input = document.getElementById("passcode");
+    input.focus();
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const btn = form.querySelector("button");
+      btn.disabled = true;
+      btn.textContent = "Checking…";
+      try {
+        const res = await fetch("/api/session", {
+          method: "POST", credentials: "same-origin",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ passcode: input.value })
+        });
+        if (res.ok) { document.querySelector(".tabbar").hidden = false; return start(); }
+        const body = await res.json().catch(() => ({}));
+        showPasscode(body.error || "That passcode didn't work. Check with staff and try again.");
+      } catch (e) {
+        showPasscode("Couldn't connect. Check your internet connection and try again.");
+      }
+    });
+  }
+
+  async function boot() {
+    applySettings();
+    document.addEventListener("click", onClick);
+    document.addEventListener("change", onChange);
+    window.addEventListener("scroll", () => document.getElementById("topbar").classList.toggle("scrolled", window.scrollY > 4), { passive: true });
+    await start();
+  }
+
+  async function start() {
+    try { state.data = await loadData(); }
+    catch (e) {
+      if (e && e.needsPasscode) return showPasscode();
+      $app().innerHTML = `<div class="empty">${icon("warn")}<h2>Bus times didn't load</h2><p>Check your internet connection and try again.</p><button class="btn btn-primary" onclick="location.reload()">Try again</button></div>`;
+      return;
+    }
+    const initial = (location.hash || "").slice(1);
+    go(VIEWS[initial] && !["trip", "ride", "done", "plan"].includes(initial) ? initial : "home");
+    if (!start.hashListener) {
+      start.hashListener = true;
+      window.addEventListener("hashchange", () => { const v = location.hash.slice(1) || "home"; if (v !== currentView) go(v); });
+    }
+
+    // Offline support: keeps the app and the last timetable on the phone.
+    if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+  }
+  boot();
+})();
+
+</script>
+
+</body></html>

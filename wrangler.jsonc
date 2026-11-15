@@ -1,0 +1,35 @@
+{
+  // One Worker serves both the front end (static files in public/) and the API (/api/*).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "journey-buddy",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    // API requests always reach the Worker, even if a static file of the same name existed.
+    "run_worker_first": ["/api/*"]
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "journey-buddy",
+      // Paste the id printed by `npx wrangler d1 create journey-buddy`.
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  "vars": {
+    // Cloudflare Access (staff only). Fill these in once the Access application exists.
+    // Team domain looks like "yourteam.cloudflareaccess.com"; AUD is the application's audience tag.
+    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_AUD": ""
+  }
+
+  // Secrets (set with `npx wrangler secret put NAME`, or in .dev.vars locally):
+  //   USER_PASSCODE   the shared passcode charity users type once on their phone
+  //   SESSION_SECRET  a long random string used to sign the session cookie
+}
